@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "polyglot",
+  "description": "The official Polyglot language-learning plugin.",
+  "owner": {
+    "name": "Amal David"
+  },
+  "plugins": [
+    {
+      "name": "polyglot",
+      "source": "./",
+      "description": "Learn one useful phrase at a time across 70 language pairs.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Amal David"
+      },
+      "repository": "https://github.com/Amal-David/polyglot",
+      "license": "MIT",
+      "category": "education",
+      "tags": [
+        "language-learning",
+        "vocabulary",
+        "agent-skills"
+      ]
+    }
+  ]
+}

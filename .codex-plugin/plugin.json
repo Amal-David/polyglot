@@ -1,0 +1,40 @@
+{
+  "name": "polyglot",
+  "version": "1.0.0",
+  "description": "Learn one useful phrase at a time across 70 language pairs.",
+  "author": {
+    "name": "Amal David",
+    "url": "https://github.com/Amal-David"
+  },
+  "homepage": "https://github.com/Amal-David/polyglot",
+  "repository": "https://github.com/Amal-David/polyglot",
+  "license": "MIT",
+  "keywords": [
+    "language-learning",
+    "agent-skills",
+    "vocabulary",
+    "pronunciation"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "interface": {
+    "displayName": "Polyglot",
+    "shortDescription": "One useful phrase at a time",
+    "longDescription": "Practice 18,235 educational entries across 70 language pairs on demand or through an optional ambient companion.",
+    "developerName": "Amal David",
+    "category": "Education",
+    "capabilities": [
+      "Interactive"
+    ],
+    "websiteURL": "https://github.com/Amal-David/polyglot",
+    "defaultPrompt": [
+      "Teach me one practical phrase in Spanish.",
+      "Quiz me using my active language pair.",
+      "Show my Polyglot ambient settings."
+    ],
+    "brandColor": "#5B5BD6",
+    "screenshots": [
+      "./assets/screenshots/polyglot_ambient_hook.png"
+    ]
+  }
+}

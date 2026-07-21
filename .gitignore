@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
+node_modules/
+.wrangler/
+.next/
+
+# macOS
+.DS_Store
+
+# Editor / agent / IDE config (per-machine)
+.agents/*
+!.agents/plugins/
+.agents/plugins/*
+!.agents/plugins/marketplace.json
+.amazonq/
+.claude/
+.codex/
+.cursor/
+.gemini/
+.opencode/
+.superplan/
+.idea/
+.vscode/
+*.swp
+*.swo

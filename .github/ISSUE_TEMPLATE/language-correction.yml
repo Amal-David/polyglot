@@ -1,0 +1,53 @@
+name: Language correction
+description: Propose a translation, pronunciation, usage, or script correction
+title: "[language correction] "
+labels:
+  - language-correction
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Polyglot. Please provide enough regional and usage context for a language reviewer to evaluate the change.
+  - type: input
+    id: pair
+    attributes:
+      label: Pair id
+      description: For example, en-es or es-en.
+      placeholder: en-es
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: Current entry
+      description: Copy the exact source, target, pronunciation, and note.
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Proposed correction
+      description: Include the complete replacement text.
+    validations:
+      required: true
+  - type: input
+    id: context
+    attributes:
+      label: Region, variety, script, and register
+      placeholder: Mexican Spanish, informal conversation
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Rationale or reference
+      description: Explain why this is more accurate or natural and link a reliable reference when possible.
+    validations:
+      required: true
+  - type: checkboxes
+    id: review
+    attributes:
+      label: Review context
+      options:
+        - label: I am a native speaker or language educator for this variety.
+        - label: I checked whether the reverse-direction pair needs a separate correction.

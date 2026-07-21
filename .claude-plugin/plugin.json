@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "polyglot",
+  "version": "1.0.0",
+  "description": "Learn one useful phrase at a time across 70 language pairs.",
+  "author": {
+    "name": "Amal David"
+  },
+  "repository": "https://github.com/Amal-David/polyglot",
+  "homepage": "https://github.com/Amal-David/polyglot",
+  "license": "MIT",
+  "keywords": [
+    "language-learning",
+    "agent-skills",
+    "vocabulary",
+    "pronunciation"
+  ]
+}

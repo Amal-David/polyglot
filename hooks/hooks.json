@@ -1,0 +1,16 @@
+{
+  "description": "Optional Polyglot phrase after a completed agent turn.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ambient.py\" --hook --host auto",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

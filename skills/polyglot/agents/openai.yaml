@@ -1,0 +1,4 @@
+interface:
+  display_name: "Polyglot"
+  short_description: "Learn one useful phrase at a time"
+  default_prompt: "Teach me one practical phrase in my active language pair."

@@ -1,0 +1,32 @@
+{
+  "name": "ambient-polyglot",
+  "version": "1.0.0",
+  "description": "Learn one useful phrase at a time across 70 language pairs.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Amal David",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Amal-David/polyglot.git"
+  },
+  "homepage": "https://github.com/Amal-David/polyglot",
+  "keywords": [
+    "pi-package",
+    "language-learning",
+    "agent-skills",
+    "vocabulary",
+    "pronunciation"
+  ],
+  "pi": {
+    "extensions": [
+      "./extensions/polyglot.ts"
+    ],
+    "skills": [
+      "./skills"
+    ],
+    "image": "https://raw.githubusercontent.com/Amal-David/polyglot/main/assets/screenshots/polyglot_ambient_hook.png"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  }
+}

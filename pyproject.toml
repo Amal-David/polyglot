@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ambient-polyglot"
+version = "1.0.0"
+description = "Learn one useful phrase at a time across 70 language pairs."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+  { name = "Amal David" },
+]
+keywords = [
+  "language-learning",
+  "agent-skills",
+  "codex",
+  "claude-code",
+  "hermes-agent",
+  "pi-coding-agent",
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console :: Curses",
+  "Intended Audience :: Education",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Education",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/Amal-David/polyglot"
+Repository = "https://github.com/Amal-David/polyglot"
+Issues = "https://github.com/Amal-David/polyglot/issues"
+
+[project.scripts]
+polyglot = "polyglot.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["polyglot*"]
+
+[tool.setuptools]
+include-package-data = true

@@ -1,0 +1,5 @@
+name: polyglot
+version: "1.0.0"
+description: Learn one useful phrase at a time across 70 language pairs.
+provides_hooks:
+  - transform_llm_output
