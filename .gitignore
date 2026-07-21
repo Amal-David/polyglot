@@ -13,6 +13,7 @@ htmlcov/
 node_modules/
 .wrangler/
 .next/
+.pagecast/
 
 # macOS
 .DS_Store

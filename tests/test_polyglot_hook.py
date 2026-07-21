@@ -24,10 +24,12 @@ def _with_isolated_state(test_method):
     def wrapper(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
+            self._isolated_dir = tmp_path
             state_file = tmp_path / "hook_state.json"
 
             real_load_config = polyglot_storage.load_config
             real_save_config = polyglot_storage.save_config
+            real_update_config = polyglot_storage.update_config
 
             def fake_load_config(base_dir=None):
                 return real_load_config(tmp_path)
@@ -35,9 +37,13 @@ def _with_isolated_state(test_method):
             def fake_save_config(cfg, base_dir=None):
                 real_save_config(cfg, tmp_path)
 
+            def fake_update_config(mutator, base_dir=None):
+                return real_update_config(mutator, tmp_path)
+
             with patch.object(polyglot_config, "HOOK_STATE_FILE", state_file), \
                  patch.object(polyglot_storage, "load_config", fake_load_config), \
-                 patch.object(polyglot_storage, "save_config", fake_save_config):
+                 patch.object(polyglot_storage, "save_config", fake_save_config), \
+                 patch.object(polyglot_storage, "update_config", fake_update_config):
                 test_method(self)
 
     return wrapper
@@ -150,13 +156,87 @@ class HookScriptTests(unittest.TestCase):
         cfg["ambient_enabled"] = True
         cfg["ambient_cadence"] = 1
         polyglot_storage.save_config(cfg)
+        from polyglot.data.content_loader import get_pair
+        from polyglot.data.pairs import stable_card_id
+        from polyglot.learning_store import LearnerStore
+
+        pair = get_pair("en-es")
+        card_id = stable_card_id(pair.id, pair.phrases[0])
+        learner_dir = self._isolated_dir / "learner"
+        learner = LearnerStore(learner_dir)
+        learner.record_grade(pair.id, card_id, "forward", "good", 0)
+        before = learner.get_state(pair.id, card_id, "forward")
         import polyglot.ambient as ambient
-        with patch("builtins.print") as mock_print:
+        with patch("polyglot.ambient.learner_data_dir", return_value=learner_dir), \
+             patch("builtins.print") as mock_print:
             ambient.main(["--hook", "--host", "claude"])
         printed = mock_print.call_args[0][0]
         payload = json.loads(printed)
         self.assertIn("systemMessage", payload)
-        self.assertIn("English → Spanish", payload["systemMessage"])
+        self.assertIn("Polyglot due", payload["systemMessage"])
+        self.assertLessEqual(len(payload["systemMessage"]), 180)
+        self.assertEqual(before, learner.get_state(pair.id, card_id, "forward"))
+
+    @_with_isolated_state
+    def test_fresh_pair_gets_one_ungraded_starter_then_waits_for_review(self) -> None:
+        polyglot_storage.set_active_pair_id("en-de")
+        cfg = polyglot_storage.load_config()
+        cfg["ambient_enabled"] = True
+        cfg["ambient_cadence"] = 1
+        polyglot_storage.save_config(cfg)
+
+        from polyglot.learning_store import LearnerStore
+        import polyglot.ambient as ambient
+
+        learner = LearnerStore(self._isolated_dir / "learner")
+        with patch(
+            "polyglot.ambient.learner_data_dir",
+            return_value=self._isolated_dir / "learner",
+        ), patch("polyglot.ambient.time.time", return_value=1_000):
+            first = ambient.next_ambient_message("claude")
+            second = ambient.next_ambient_message("claude")
+
+        self.assertIsNotNone(first)
+        self.assertIn("Polyglot starter", first)
+        self.assertIn("hello → hallo", first)
+        self.assertIsNone(second)
+        self.assertEqual(learner.progress("en-de", 1_000)["tracked"], 0)
+        with learner._session() as connection:
+            self.assertEqual(
+                connection.execute("SELECT COUNT(*) FROM review_history").fetchone()[0],
+                0,
+            )
+
+    @_with_isolated_state
+    def test_tracked_pair_without_due_card_never_falls_back_to_starter(self) -> None:
+        polyglot_storage.set_active_pair_id("en-de")
+        cfg = polyglot_storage.load_config()
+        cfg["ambient_enabled"] = True
+        cfg["ambient_cadence"] = 1
+        polyglot_storage.save_config(cfg)
+
+        from polyglot.data.content_loader import get_pair
+        from polyglot.data.pairs import stable_card_id
+        from polyglot.learning_store import LearnerStore
+        import polyglot.ambient as ambient
+
+        pair = get_pair("en-de")
+        learner = LearnerStore(self._isolated_dir / "learner")
+        card_id = stable_card_id(pair.id, pair.phrases[0])
+        learner.record_grade(pair.id, card_id, "forward", "good", 1_000)
+        before = learner.get_state(pair.id, card_id, "forward")
+
+        with patch(
+            "polyglot.ambient.learner_data_dir",
+            return_value=self._isolated_dir / "learner",
+        ), patch("polyglot.ambient.time.time", return_value=1_001):
+            self.assertIsNone(ambient.next_ambient_message("claude"))
+
+        self.assertEqual(before, learner.get_state(pair.id, card_id, "forward"))
+        self.assertNotIn(
+            "en-de",
+            polyglot_config.load_hook_state().get("ambient_starter_pairs", {}),
+        )
 
 
 if __name__ == "__main__":

@@ -79,8 +79,7 @@ def pick_phrase(pair_id: str | None = None) -> dict | None:
     from polyglot.data.content_loader import get_pair
     from polyglot.skill.config import (
         get_active_pair_id,
-        load_hook_state,
-        save_hook_state,
+        update_hook_state,
     )
 
     if pair_id is None:
@@ -92,43 +91,46 @@ def pick_phrase(pair_id: str | None = None) -> dict | None:
     if not pair or not pair.phrases:
         return None
 
-    state = load_hook_state()
-    if state.get("active_pair_id") != pair_id:
-        state["active_pair_id"] = pair_id
-        state["shown_counts"] = {}
-        state["recent_indices"] = []
-        state["last_phrase_idx"] = -1
-        state["total_phrases_shown"] = 0
+    selected: dict | None = None
 
-    shown_counts: dict[str, int] = state.get("shown_counts", {}) or {}
-    recent_indices: list[int] = state.get("recent_indices", []) or []
-    idx = select_phrase_index(list(pair.phrases), shown_counts, recent_indices)
-    entry = pair.phrases[idx]
+    def choose(state: dict) -> None:
+        nonlocal selected
+        if state.get("active_pair_id") != pair_id:
+            state["active_pair_id"] = pair_id
+            state["shown_counts"] = {}
+            state["recent_indices"] = []
+            state["last_phrase_idx"] = -1
+            state["total_phrases_shown"] = 0
 
-    shown_counts[str(idx)] = shown_counts.get(str(idx), 0) + 1
-    recent_indices.append(idx)
-    if len(recent_indices) > RECENT_WINDOW:
-        recent_indices = recent_indices[-RECENT_WINDOW:]
+        shown_counts = state.get("shown_counts", {})
+        recent_indices = state.get("recent_indices", [])
+        if not isinstance(shown_counts, dict) or not isinstance(recent_indices, list):
+            return
+        idx = select_phrase_index(list(pair.phrases), shown_counts, recent_indices)
+        entry = pair.phrases[idx]
+        shown_counts[str(idx)] = int(shown_counts.get(str(idx), 0) or 0) + 1
+        recent_indices.append(idx)
+        state["shown_counts"] = shown_counts
+        state["recent_indices"] = recent_indices[-RECENT_WINDOW:]
+        state["last_phrase_idx"] = idx
+        state["total_phrases_shown"] = int(state.get("total_phrases_shown", 0) or 0) + 1
+        selected = {
+            "source": entry.source,
+            "target": entry.target,
+            "pronunciation": entry.pronunciation,
+            "category": entry.category,
+            "subcategory": entry.subcategory,
+            "note": entry.note,
+            "pair_id": pair.id,
+            "pair_label": f"{pair.source_lang} → {pair.target_lang}",
+            "times_shown": shown_counts[str(idx)],
+            "total_shown": state["total_phrases_shown"],
+            "unique_shown": len(shown_counts),
+        }
 
-    state["shown_counts"] = shown_counts
-    state["recent_indices"] = recent_indices
-    state["last_phrase_idx"] = idx
-    state["total_phrases_shown"] = state.get("total_phrases_shown", 0) + 1
-    save_hook_state(state)
-
-    return {
-        "source": entry.source,
-        "target": entry.target,
-        "pronunciation": entry.pronunciation,
-        "category": entry.category,
-        "subcategory": entry.subcategory,
-        "note": entry.note,
-        "pair_id": pair.id,
-        "pair_label": f"{pair.source_lang} → {pair.target_lang}",
-        "times_shown": shown_counts[str(idx)],
-        "total_shown": state["total_phrases_shown"],
-        "unique_shown": len(shown_counts),
-    }
+    if update_hook_state(choose) is None:
+        return None
+    return selected
 
 
 def total_phrase_count(pair_id: str | None = None) -> int:

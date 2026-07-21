@@ -1,0 +1,2 @@
+include protocol/ambient-companion-v1.schema.json
+include protocol/ambient-companion-v1.example.json

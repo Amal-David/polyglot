@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "bundle": "polyglot-pagecast",
+  "entrypoint": "index.html",
+  "assets": [
+    { "path": "assets/favicon.svg", "status": "present", "bytes": 319, "sha256": "7d2efb7e92610a407ed7d3f481c16a5e05474c7d51e8143fb7ce01679ad5cf79" },
+    { "path": "assets/fonts/dm-mono-latin-400-normal.woff2", "status": "present", "bytes": 14820, "sha256": "e1896b13b2b1bb112fac2f9571bd6c40e118746e77a4511edbf43fbb41bf3e1e" },
+    { "path": "assets/fonts/hanken-grotesk-latin-400-normal.woff2", "status": "present", "bytes": 13460, "sha256": "787b3fdd0b7e6d59ae7ce14ce7a41d1a44616584b4c919b527da951972d5d87d" },
+    { "path": "assets/fonts/hanken-grotesk-latin-600-normal.woff2", "status": "present", "bytes": 13780, "sha256": "58f23b7ae3e13b21a4dca4c05360be87b3531d60fc1cbff89732cac8fb3019ae" },
+    { "path": "assets/fonts/newsreader-latin-400-normal.woff2", "status": "present", "bytes": 22480, "sha256": "e66067814f1c672d33a457e4f4d102c818b481420e2234cf685ebdbf2f443904" },
+    { "path": "assets/fonts/licenses/dm-mono-OFL.txt", "status": "present", "bytes": 4937, "sha256": "d2766c396a8534cba53340f8af2037749b6a0a1dd3587348c917a70e779d2e32" },
+    { "path": "assets/fonts/licenses/hanken-grotesk-OFL.txt", "status": "present", "bytes": 4530, "sha256": "f45f60ca871850c58d8dc9c973bd6fcad40c137e9d037172b961e8ca68c87ef7" },
+    { "path": "assets/fonts/licenses/newsreader-OFL.txt", "status": "present", "bytes": 4520, "sha256": "26028ec4e13b650065fa525a09532176f8a668b76ff849ea01c564a7480f91e7" },
+    { "path": "assets/polyglot-demo.mp4", "status": "present", "bytes": 40865, "sha256": "e2f56f76aa69641a5a2b72e36d8e8a08eff3a8f1a52480729d324cd245447189" },
+    { "path": "assets/polyglot-poster.png", "status": "present", "bytes": 26152, "sha256": "01d92890a2746db03a262d807db60be2ff2b024d1d4070b0ed63c5de4f987d09" }
+  ],
+  "verified_facts": {
+    "directions": 74,
+    "entries": 19281,
+    "german_learning_metadata_records": 520,
+    "exact_lemma_article_gender_facts": 119,
+    "exact_text_clozes": 79,
+    "reverse_directions": { "pl_en": 264, "uk_en": 265, "sv_en": 261, "el_en": 256 },
+    "new_card_good_interval_days": 1,
+    "max_audited_ambient_line_characters": 85,
+    "max_audited_ambient_line_tokens_approx": 43
+  }
+}

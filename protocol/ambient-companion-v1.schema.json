@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ambientcompanions.dev/schema/ambient-companion-v1.json",
+  "title": "Ambient Companion Protocol v1",
+  "type": "object",
+  "required": [
+    "protocol_version",
+    "host",
+    "event",
+    "mode",
+    "intent_tags"
+  ],
+  "properties": {
+    "protocol_version": {
+      "const": "ambient-companion/v1"
+    },
+    "host": {
+      "enum": [
+        "codex",
+        "claude",
+        "hermes",
+        "pi"
+      ]
+    },
+    "event": {
+      "const": "turn_ended"
+    },
+    "mode": {
+      "enum": [
+        "disabled",
+        "compact",
+        "interactive"
+      ]
+    },
+    "intent_tags": {
+      "type": "array",
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]{0,31}$"
+      }
+    }
+  },
+  "additionalProperties": false
+}

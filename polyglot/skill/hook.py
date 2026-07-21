@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
-"""Legacy hook wrapper; new installs use the plugin's shared Stop hook."""
+"""Deprecated compatibility wrapper; manifests use ``scripts/ambient.py``."""
 
 from __future__ import annotations
+
+import warnings
 
 from polyglot.ambient import main as ambient_main
 
 
 def main() -> int:
-    """Run the old entry point against the new opt-in event protocol."""
+    """Run the compatibility entry point for existing installations only."""
+    warnings.warn(
+        "polyglot.skill.hook is deprecated; use the bundled scripts/ambient.py wrapper",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return ambient_main(["--hook", "--host", "claude"])
 
 

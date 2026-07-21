@@ -5,8 +5,8 @@ description: This skill should be used when someone wants an educational languag
 
 # Polyglot
 
-Offer short, low-friction language practice from Polyglot's bundled 70 language
-pairs and 18,235 entries.
+Offer short, low-friction language practice from Polyglot's bundled 74
+directions and 19,281 educational entries.
 
 ## Sample a phrase
 
@@ -31,10 +31,17 @@ pairs and 18,235 entries.
 - Run `polyglot ambient enable --pair <pair-id> --cadence <turns>` after that
   explicit request.
 - Run `polyglot ambient disable` to stop automatic phrases.
-- Run `polyglot ambient status` to report the current state.
+- Run `polyglot ambient status` to report whether the active pair is ready for
+  one ungraded starter exposure, waiting for explicit review, or has a due
+  reviewed card.
 - If the installed command is unavailable, use the bundled script instead:
   `python3 <plugin-root>/scripts/ambient.py --enable --pair <pair-id> --cadence <turns>`,
   `--disable`, or `--status`.
+
+A fresh pair may receive one labelled starter exposure at the configured
+cadence. It is not a recall grade and must not be described as progress. After
+that first exposure, direct the user to `polyglot review`; once review state
+exists, ambient delivery is due-only and never changes the schedule.
 
 ## Content boundaries
 

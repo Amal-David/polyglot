@@ -1,8 +1,9 @@
-"""Aggregates all 70 language-pair modules into a single registry."""
+"""Aggregates the shipped registry plus v2 learning-safe derived directions."""
 
 from __future__ import annotations
 
 from .pairs import LanguagePair
+from .content_v2 import annotate_german_pair, build_reverse_pairs
 
 # EN → 14 original target languages
 from . import (  # noqa: F401
@@ -111,7 +112,7 @@ from . import (  # noqa: F401
 )
 
 
-ALL_PAIRS: tuple[LanguagePair, ...] = (
+_BASE_PAIRS: tuple[LanguagePair, ...] = (
     # EN → core 14
     pair_en_es.PAIR,
     pair_en_fr.PAIR,
@@ -192,6 +193,14 @@ ALL_PAIRS: tuple[LanguagePair, ...] = (
     pair_fa_en.PAIR,
     pair_ur_en.PAIR,
 )
+
+# German keeps its exact existing entries and stable card identity; the v2
+# layer only attaches conservative learning metadata.  The four new directions
+# are reversible views of existing shipped records, never new translations.
+ALL_PAIRS: tuple[LanguagePair, ...] = tuple(
+    annotate_german_pair(pair) if pair.id in {"en-de", "de-en"} else pair
+    for pair in _BASE_PAIRS
+) + build_reverse_pairs(_BASE_PAIRS)
 
 _BY_ID: dict[str, LanguagePair] = {p.id: p for p in ALL_PAIRS}
 

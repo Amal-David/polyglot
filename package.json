@@ -1,7 +1,7 @@
 {
   "name": "ambient-polyglot",
-  "version": "1.0.0",
-  "description": "Learn one useful phrase at a time across 70 language pairs.",
+  "version": "1.1.0",
+  "description": "Learn one useful phrase at a time across 74 language pairs.",
   "type": "module",
   "license": "MIT",
   "author": "Amal David",
@@ -9,7 +9,7 @@
     "type": "git",
     "url": "https://github.com/Amal-David/polyglot.git"
   },
-  "homepage": "https://github.com/Amal-David/polyglot",
+  "homepage": "https://pagecast-6cv.pages.dev/p/gentle-bumbling-panther-7373321451de0e735781830f87c14813/",
   "keywords": [
     "pi-package",
     "language-learning",
