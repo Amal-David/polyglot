@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 import sys
+import time
 from typing import Any
 
 from polyglot.data.content_loader import get_pair
@@ -15,24 +16,32 @@ from polyglot.skill.config import (
     get_ambient_enabled,
     load_hook_state,
     save_hook_state,
+    update_hook_state,
 )
-from polyglot.storage import load_config, save_config, set_active_pair_id
+from polyglot.storage import learner_data_dir, load_config, set_active_pair_id, update_config
 from polyglot.skill.phrase_picker import (
     format_phrase_message,
     pick_phrase,
     total_phrase_count,
 )
+from polyglot.safety import contains_control_or_sensitive_data
 
 VALID_HOSTS = {"claude", "codex", "hermes", "pi"}
 
 
 def detect_hook_host() -> str:
     """Identify Codex's compatibility environment, falling back to Claude."""
-    return "codex" if os.environ.get("PLUGIN_ROOT") else "claude"
+    return (
+        "codex"
+        if os.environ.get("PLUGIN_ROOT") or os.environ.get("CODEX_PLUGIN_ROOT")
+        else "claude"
+    )
 
 
 def format_companion_message(phrase: dict[str, Any]) -> str:
     """Format a compact phrase card for agent and terminal surfaces."""
+    if not _safe_phrase(phrase):
+        return ""
     return format_phrase_message(
         phrase,
         total_phrase_count(phrase["pair_id"]),
@@ -41,7 +50,11 @@ def format_companion_message(phrase: dict[str, Any]) -> str:
 
 
 def next_ambient_message(host: str) -> str | None:
-    """Return a phrase when ambient mode and this host's cadence allow it."""
+    """Return one due card or one fresh-pair starter at the configured cadence.
+
+    Ambient delivery is never evidence of recall and cannot create or move a
+    learner schedule.  The starter marker lives only in fail-soft hook state.
+    """
     if host not in VALID_HOSTS:
         raise ValueError(f"unsupported host: {host}")
     if not get_ambient_enabled():
@@ -51,26 +64,119 @@ def next_ambient_message(host: str) -> str | None:
     if not pair_id:
         return None
 
-    state = load_hook_state()
+    def increment(state: dict) -> None:
+        counts = state.get("host_turn_counts")
+        if not isinstance(counts, dict):
+            counts = {}
+        counts[host] = int(counts.get(host, 0) or 0) + 1
+        state["host_turn_counts"] = counts
+
+    state = update_hook_state(increment)
+    if state is None:
+        return None
     counts = state.get("host_turn_counts")
     if not isinstance(counts, dict):
-        counts = {}
-    turn_count = int(counts.get(host, 0) or 0) + 1
-    counts[host] = turn_count
-    state["host_turn_counts"] = counts
-    save_hook_state(state)
+        return None
+    turn_count = int(counts.get(host, 0) or 0)
 
     cadence = get_ambient_cadence()
     if turn_count % cadence != 0:
         return None
 
-    phrase = pick_phrase(pair_id)
-    return format_companion_message(phrase) if phrase else None
+    pair = get_pair(pair_id)
+    if pair is None:
+        return None
+    from polyglot.learning_store import LearnerStore
+    from polyglot.review import (
+        compact_ambient_line,
+        compact_starter_line,
+        due_ambient_card,
+        starter_ambient_card,
+    )
+
+    store = LearnerStore(learner_data_dir())
+    # A corrupt or unknown database must never become host-visible ambient text.
+    if store.was_quarantined:
+        return None
+    now = time.time()
+    card = due_ambient_card(store, pair, now)
+    if card:
+        return compact_ambient_line(card)
+    if store.progress(pair.id, now)["tracked"] > 0:
+        return None
+
+    starter = starter_ambient_card(pair)
+    message = compact_starter_line(starter) if starter else None
+    if not starter or not message:
+        return None
+
+    claimed = False
+
+    def claim_starter(state: dict) -> None:
+        nonlocal claimed
+        pairs = state.get("ambient_starter_pairs")
+        if not isinstance(pairs, dict):
+            pairs = {}
+        if pair.id not in pairs:
+            pairs[pair.id] = starter.card_id
+            claimed = True
+        state["ambient_starter_pairs"] = pairs
+
+    return message if update_hook_state(claim_starter) is not None and claimed else None
+
+
+def ambient_learning_status(
+    pair_id: str | None,
+    *,
+    now: float | None = None,
+) -> dict[str, str]:
+    """Describe the next truthful ambient learning state without changing it."""
+    if not pair_id or get_pair(pair_id) is None:
+        return {
+            "learning_state": "waiting",
+            "next_step": "Select a language pair before enabling ambient learning.",
+        }
+
+    from polyglot.learning_store import LearnerStore
+
+    store = LearnerStore(learner_data_dir())
+    current_time = time.time() if now is None else now
+    progress = store.progress(pair_id, current_time)
+    if progress["due"] > 0:
+        return {
+            "learning_state": "due-ready",
+            "next_step": "The next cadence can show a due card without rescheduling it.",
+        }
+    if progress["tracked"] > 0:
+        return {
+            "learning_state": "waiting",
+            "next_step": "No card is due yet; the learner schedule remains unchanged.",
+        }
+
+    starters = load_hook_state().get("ambient_starter_pairs")
+    if isinstance(starters, dict) and pair_id in starters:
+        return {
+            "learning_state": "waiting",
+            "next_step": f"Run `polyglot review --pair {pair_id}` to begin spaced repetition.",
+        }
+    return {
+        "learning_state": "starter",
+        "next_step": "The next cadence can show one ungraded starter exposure.",
+    }
 
 
 def sample_phrase(pair_id: str | None = None) -> dict[str, Any] | None:
     """Sample immediately, bypassing ambient enablement and cadence."""
-    return pick_phrase(pair_id)
+    phrase = pick_phrase(pair_id)
+    return phrase if _safe_phrase(phrase) else None
+
+
+def _safe_phrase(phrase: object) -> bool:
+    """Catalog facts may be rendered, never interpreted as host instructions."""
+    if not isinstance(phrase, dict):
+        return False
+    fields = ("source", "target", "pronunciation", "note", "pair_id", "pair_label")
+    return all(isinstance(phrase.get(field, ""), str) and not contains_control_or_sensitive_data(phrase.get(field, "")) for field in fields)
 
 
 def configure(
@@ -86,24 +192,29 @@ def configure(
             raise ValueError(f"unknown language pair: {pair_id}")
         set_active_pair_id(pair_id)
         changed = True
-    config = load_config()
-    if cadence is not None:
-        if cadence < 1:
-            raise ValueError("cadence must be at least 1")
-        config["ambient_cadence"] = cadence
+    if cadence is not None and cadence < 1:
+        raise ValueError("cadence must be at least 1")
+
+    def apply(config: dict) -> None:
+        if cadence is not None:
+            config["ambient_cadence"] = cadence
+        if enabled is not None:
+            if enabled and not config.get("active_pair_id"):
+                raise ValueError("select a pair before enabling ambient mode")
+            config["ambient_enabled"] = enabled
+
+    if cadence is not None or enabled is not None:
+        config = update_config(apply)
         changed = True
-    if enabled is not None:
-        if enabled and not config.get("active_pair_id"):
-            raise ValueError("select a pair before enabling ambient mode")
-        config["ambient_enabled"] = enabled
-        changed = True
-    if changed:
-        save_config(config)
-    return {
+    else:
+        config = load_config()
+    payload = {
         "enabled": bool(config.get("ambient_enabled", False)),
         "active_pair": config.get("active_pair_id"),
         "cadence": int(config.get("ambient_cadence", 5) or 5),
     }
+    payload.update(ambient_learning_status(payload["active_pair"]))
+    return payload
 
 
 def _parser() -> argparse.ArgumentParser:

@@ -5,12 +5,14 @@ from __future__ import annotations
 from pathlib import Path
 
 from polyglot.ambient import (
+    configure,
     format_companion_message,
     next_ambient_message,
     sample_phrase,
 )
 from polyglot.data.content_loader import get_pair
-from polyglot.storage import get_active_pair_id, load_config, save_config, set_active_pair_id
+from polyglot.safety import is_safe_ambient_message
+from polyglot.storage import get_active_pair_id, load_config
 
 
 def transform_llm_output(response_text: str, **_kwargs) -> str | None:
@@ -19,7 +21,7 @@ def transform_llm_output(response_text: str, **_kwargs) -> str | None:
         message = next_ambient_message("hermes")
     except Exception:
         return None
-    if not message:
+    if not is_safe_ambient_message(message):
         return None
     return f"{response_text.rstrip()}\n\n{message}"
 
@@ -38,9 +40,7 @@ def handle_command(raw_args: str) -> str:
                 f"{int(config.get('ambient_cadence', 5) or 5)}."
             )
         if action == "disable":
-            config = load_config()
-            config["ambient_enabled"] = False
-            save_config(config)
+            configure(enabled=False)
             return "Polyglot ambient mode disabled."
         if action == "sample":
             pair_id = parts[1] if len(parts) > 1 else get_active_pair_id()
@@ -58,13 +58,10 @@ def handle_command(raw_args: str) -> str:
                 cadence = int(parts[2])
                 if cadence < 1:
                     raise ValueError
-            set_active_pair_id(parts[1])
-            config = load_config()
             if action == "enable":
-                config["ambient_enabled"] = True
-                if cadence is not None:
-                    config["ambient_cadence"] = cadence
-            save_config(config)
+                configure(enabled=True, pair_id=parts[1], cadence=cadence)
+            else:
+                configure(pair_id=parts[1])
             return handle_command("status")
     except Exception:
         return "Usage: /polyglot [status|sample [pair]|enable <pair> [cadence]|disable]"

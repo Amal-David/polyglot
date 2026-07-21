@@ -30,17 +30,30 @@ test("server-renders the complete Polyglot landing page", async () => {
   const html = await response.text();
   assert.match(
     html,
-    /<title>Polyglot — Ambient language learning for coding agents<\/title>/i,
+    /<title>Polyglot — Learn a language between Codex and Claude Code turns<\/title>/i,
   );
-  assert.match(html, /Every finished task can teach you/);
-  assert.match(html, /18,235/);
-  assert.match(html, /70 language pairs/);
-  assert.match(html, /ありがとうございます/);
+  assert.match(html, /Learn a language in the/);
+  assert.match(html, /pauses/);
+  assert.match(html, /Instead of staring at terminal churn/);
+  assert.match(html, /Codex Desktop \+ CLI/);
+  assert.match(html, /19,281/);
+  assert.match(html, /74/);
+  assert.match(html, /polyglot review --pair en-de --direction reverse/);
+  assert.match(html, /Prompt: sehen/);
+  assert.match(html, /Answer: to see/);
+  assert.match(html, /Grade \[again\/hard\/good\/easy\]: good/);
+  assert.match(html, /Next review: tomorrow/);
+  assert.match(html, /Typed answers are not persisted/);
+  assert.match(html, /520/);
+  assert.match(html, /119/);
+  assert.match(html, /79/);
+  assert.match(html, /PL→EN 264/);
+  assert.match(html, /Read the demo transcript and summary/);
   assert.match(html, /Codex/);
   assert.match(html, /Claude/);
   assert.match(html, /Hermes/);
   assert.match(html, />Pi</);
   assert.match(html, /polyglot-demo\.mp4/);
   assert.match(html, /github\.com\/Amal-David\/polyglot/);
-  assert.doesNotMatch(html, /codex-preview|Your site is taking shape/);
+  assert.doesNotMatch(html, /codex-preview|Your site is taking shape|host-native/);
 });

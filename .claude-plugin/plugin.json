@@ -1,14 +1,16 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "polyglot",
-  "version": "1.0.0",
-  "description": "Learn one useful phrase at a time across 70 language pairs.",
+  "version": "1.1.0",
+  "description": "Practice one useful phrase at a time across 74 directions.",
   "author": {
     "name": "Amal David"
   },
   "repository": "https://github.com/Amal-David/polyglot",
-  "homepage": "https://github.com/Amal-David/polyglot",
+  "homepage": "https://pagecast-6cv.pages.dev/p/gentle-bumbling-panther-7373321451de0e735781830f87c14813/",
   "license": "MIT",
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
   "keywords": [
     "language-learning",
     "agent-skills",

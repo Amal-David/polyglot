@@ -1,0 +1,9 @@
+{
+  "protocol_version": "ambient-companion/v1",
+  "host": "codex",
+  "event": "turn_ended",
+  "mode": "compact",
+  "intent_tags": [
+    "verify"
+  ]
+}

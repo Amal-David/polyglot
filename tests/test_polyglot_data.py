@@ -1,24 +1,50 @@
-"""Polyglot data integrity tests — all 70 pair modules must shape up."""
+"""Polyglot data integrity tests — registered directions must shape up."""
 
 from __future__ import annotations
 
+import unicodedata
 import unittest
 
 from polyglot.data.content_loader import ALL_PAIRS, get_pair, list_pairs
+from polyglot.data.content_v2 import STAGING_MANIFEST, STAGING_VALIDATION_REPORT, validate_v2_content
 from polyglot.data.pairs import CATEGORIES, LanguagePair, PhraseEntry
+from polyglot.review import _card, compact_ambient_line
+from polyglot.safety import AMBIENT_MAX_CHARACTERS, AMBIENT_MAX_TOKENS, approximate_token_count
+from polyglot.safety import contains_control_or_sensitive_data
 
-EXPECTED_PAIR_COUNT = 70
-EXPECTED_ENTRY_COUNT = 18_235
+EXPECTED_PAIR_COUNT = 74
+EXPECTED_ENTRY_COUNT = 19_281
 MIN_PHRASES_PER_PAIR = 200
 
 
 class PolyglotDataIntegrity(unittest.TestCase):
-    def test_loads_exactly_seventy_pairs(self) -> None:
+    def test_every_catalog_card_has_a_safe_bounded_ambient_rendering(self) -> None:
+        lines = [
+            compact_ambient_line(_card(pair, entry, "forward"))
+            for pair in ALL_PAIRS
+            for entry in pair.phrases
+        ]
+        self.assertNotIn(None, lines)
+        self.assertEqual(max(map(len, lines)), 85)
+        self.assertEqual(max(map(approximate_token_count, lines)), 43)
+        self.assertTrue(all(len(line) <= AMBIENT_MAX_CHARACTERS for line in lines))
+        self.assertTrue(all(approximate_token_count(line) <= AMBIENT_MAX_TOKENS for line in lines))
+
+    def test_catalog_has_no_control_or_host_context_sentinels(self) -> None:
+        unsafe = [
+            (pair.id, field, value)
+            for pair in ALL_PAIRS
+            for entry in pair.phrases
+            for field, value in (("source", entry.source), ("target", entry.target), ("pronunciation", entry.pronunciation), ("note", entry.note))
+            if contains_control_or_sensitive_data(value)
+        ]
+        self.assertEqual(unsafe, [])
+    def test_loads_exact_release_catalog(self) -> None:
         self.assertEqual(EXPECTED_PAIR_COUNT, len(ALL_PAIRS))
         self.assertEqual(EXPECTED_PAIR_COUNT, len(list_pairs()))
         self.assertEqual(
-            EXPECTED_ENTRY_COUNT,
             sum(len(pair.phrases) for pair in ALL_PAIRS),
+            EXPECTED_ENTRY_COUNT,
         )
 
     def test_pair_ids_are_unique(self) -> None:
@@ -87,6 +113,51 @@ class PolyglotDataIntegrity(unittest.TestCase):
                     first_script.note.strip(),
                     f"first script entry of {pair.id} should carry a pronunciation note",
                 )
+
+    def test_v2_staging_metadata_and_reverse_direction_release_gates(self) -> None:
+        report = validate_v2_content(ALL_PAIRS)
+        self.assertEqual(report["direction_count"], EXPECTED_PAIR_COUNT)
+        self.assertEqual(report["entry_count"], EXPECTED_ENTRY_COUNT)
+        self.assertEqual(report["german_record_count"], 520)
+        self.assertTrue(report["minimum_250_each"])
+        self.assertTrue(report["unique_record_ids"])
+        self.assertTrue(report["original_script_preserved"])
+        self.assertTrue(all(report["reverse_scripts"].values()))
+        self.assertTrue(report["not_native_reviewed"])
+        self.assertGreaterEqual(report["german_article_gender_coverage"], 100)
+        self.assertGreaterEqual(report["german_cloze_coverage"], 70)
+        self.assertEqual(STAGING_MANIFEST["artifacts"]["german-path-v1.jsonl"]["records"], 520)
+        self.assertEqual(STAGING_MANIFEST["artifacts"]["reverse-directions-v1.jsonl"]["records"], 1_046)
+        self.assertEqual(report["reverse_counts"], STAGING_VALIDATION_REPORT["reverse_counts"])
+        self.assertEqual(report["reverse_record_count"], STAGING_VALIDATION_REPORT["reverse_record_count"])
+
+    def test_reverse_records_preserve_the_exact_shipped_source_and_german_cards_keep_ids(self) -> None:
+        source_by_reverse = {"pl-en": "en-pl", "uk-en": "en-uk", "sv-en": "en-sv", "el-en": "en-el"}
+        for reverse_id, source_id in source_by_reverse.items():
+            for source, reversed_entry in zip(get_pair(source_id).phrases, get_pair(reverse_id).phrases):
+                self.assertEqual((reversed_entry.source, reversed_entry.target), (source.target, source.source))
+                self.assertEqual(reversed_entry.metadata["provenance"]["source_pair_id"], source_id)
+        from polyglot.data.pair_en_de import PAIR as raw_german
+        from polyglot.data.pairs import stable_card_id
+        annotated = get_pair("en-de").phrases[0]
+        self.assertEqual(stable_card_id("en-de", annotated), stable_card_id("en-de", raw_german.phrases[0]))
+
+    def test_original_scripts_remain_available_across_catalog_and_reverse_paths(self) -> None:
+        fixtures = {
+            "pl-en": ("source", "Latin"),
+            "uk-en": ("source", "Cyrillic"),
+            "el-en": ("source", "Greek"),
+            "en-ja": ("target", "CJK"),
+            "en-hi": ("target", "Indic"),
+            "en-th": ("target", "Thai"),
+            "en-ar": ("target", "RTL"),
+        }
+        for pair_id, (side, label) in fixtures.items():
+            pair = get_pair(pair_id)
+            self.assertIsNotNone(pair)
+            text = "\n".join(getattr(entry, side) for entry in pair.phrases)
+            self.assertEqual(text, unicodedata.normalize("NFC", text), f"{label} fixture changed")
+            self.assertTrue(any(ord(char) > 127 for char in text), f"{label} fixture lost original script")
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import venv
+import zipfile
 from pathlib import Path
 
 
@@ -25,6 +26,16 @@ def main(argv: list[str] | None = None) -> int:
     if not wheel.is_file():
         print(f"wheel not found: {wheel}", file=sys.stderr)
         return 2
+
+    with zipfile.ZipFile(wheel) as archive:
+        names = set(archive.namelist())
+    for filename in (
+        "ambient-companion-v1.schema.json",
+        "ambient-companion-v1.example.json",
+    ):
+        if not any(name.endswith(f"/protocol/{filename}") for name in names):
+            print(f"wheel is missing packaged protocol fixture: {filename}", file=sys.stderr)
+            return 1
 
     with tempfile.TemporaryDirectory(prefix="polyglot-wheel-") as temp:
         root = Path(temp)
@@ -43,8 +54,13 @@ def main(argv: list[str] | None = None) -> int:
             env={**os.environ, "HOME": str(root / "home")},
         )
         pairs = json.loads(result.stdout)
-        assert len(pairs) == 70
-        assert sum(pair["entries"] for pair in pairs) == 18_235
+        assert len(pairs) == 74
+        assert sum(pair["entries"] for pair in pairs) == 19_281
+        entries_by_id = {pair["id"]: pair["entries"] for pair in pairs}
+        assert entries_by_id["pl-en"] == 264
+        assert entries_by_id["uk-en"] == 265
+        assert entries_by_id["sv-en"] == 261
+        assert entries_by_id["el-en"] == 256
     return 0
 
 

@@ -7,6 +7,21 @@ type AmbientPayload = { message?: string };
 const pluginRoot = fileURLToPath(new URL("..", import.meta.url));
 const scriptPath = fileURLToPath(new URL("../scripts/ambient.py", import.meta.url));
 
+const ALLOWED_ENVIRONMENT = [
+  "PATH", "PATHEXT", "SystemRoot", "WINDIR", "ComSpec",
+  "HOME", "USERPROFILE", "APPDATA", "TMPDIR", "TMP", "TEMP",
+  "LANG", "LC_ALL", "LC_CTYPE", "XDG_DATA_HOME",
+] as const;
+
+function childEnvironment(): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = { PYTHONUTF8: "1" };
+  for (const key of ALLOWED_ENVIRONMENT) {
+    const value = process.env[key];
+    if (value) env[key] = value;
+  }
+  return env;
+}
+
 function runPython(args: string[]): string | null {
   const candidates: Array<[string, string[]]> =
     process.platform === "win32"
@@ -21,7 +36,7 @@ function runPython(args: string[]): string | null {
         cwd: pluginRoot,
         encoding: "utf8",
         timeout: 5000,
-        env: { ...process.env, PYTHONUTF8: "1" },
+        env: childEnvironment(),
       },
     );
     if (result.error || result.status !== 0 || !result.stdout.trim()) continue;
@@ -36,6 +51,9 @@ function loadPhrase(): string | null {
   try {
     const payload = JSON.parse(output) as AmbientPayload;
     return typeof payload.message === "string" && payload.message.trim()
+      && payload.message.length <= 180
+      && !/[\x00-\x1F\x7F]/.test(payload.message)
+      && !/(?:__[^\s]*(?:secret|token|prompt|transcript|tool)[^\s]*__|api[_ -]?key\s*[:=]|authorization\s*[:=]|password\s*[:=]|(?:^|\s)\/(?:Users|home|private|tmp)\/)/i.test(payload.message)
       ? payload.message.trim()
       : null;
   } catch {

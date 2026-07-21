@@ -6,6 +6,7 @@ import json
 import os
 import sys
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -25,10 +26,49 @@ def app_data_dir(app_dir_name: str, base_dir: Path | None = None) -> Path:
     return root / app_dir_name
 
 
+def private_directory(path: Path) -> Path:
+    """Create a state directory that is inaccessible to other local users."""
+    path = Path(path)
+    path.mkdir(parents=True, exist_ok=True)
+    if os.name != "nt":
+        path.chmod(0o700)
+    return path
+
+
+@contextmanager
+def locked_file(path: Path):
+    """Serialize a small read-modify-write operation with an owner-only lock."""
+    path = Path(path)
+    private_directory(path.parent)
+    descriptor = os.open(path, os.O_CREAT | os.O_RDWR, 0o600)
+    try:
+        if os.name == "nt":
+            import msvcrt
+
+            msvcrt.locking(descriptor, msvcrt.LK_LOCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(descriptor, fcntl.LOCK_EX)
+        yield
+    finally:
+        try:
+            if os.name == "nt":
+                import msvcrt
+
+                msvcrt.locking(descriptor, msvcrt.LK_UNLCK, 1)
+            else:
+                import fcntl
+
+                fcntl.flock(descriptor, fcntl.LOCK_UN)
+        finally:
+            os.close(descriptor)
+
+
 def atomic_write_text(path: Path, text: str, *, encoding: str = "utf-8") -> None:
     """Atomically replace *path* with *text* in the same filesystem."""
     path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    private_directory(path.parent)
     descriptor, temporary_name = tempfile.mkstemp(
         dir=path.parent,
         prefix=f".{path.name}.",

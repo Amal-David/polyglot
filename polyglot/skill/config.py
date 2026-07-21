@@ -6,7 +6,7 @@ import json
 import sys
 from pathlib import Path
 
-from polyglot.platform import app_data_dir, atomic_write_json
+from polyglot.platform import app_data_dir, atomic_write_json, locked_file
 
 APP_DIR_NAME = "polyglot"
 
@@ -31,6 +31,7 @@ def load_hook_state() -> dict:
         "call_count": 0,
         "codex_turn_count": 0,
         "host_turn_counts": {},
+        "ambient_starter_pairs": {},
         "last_phrase_idx": -1,
         "shown_counts": {},
         "recent_indices": [],
@@ -48,6 +49,18 @@ def save_hook_state(state: dict) -> None:
         atomic_write_json(HOOK_STATE_FILE, state, indent=None)
     except OSError:
         pass
+
+
+def update_hook_state(mutator) -> dict | None:
+    """Update host counters/history without losing concurrent completed turns."""
+    try:
+        with locked_file(HOOK_STATE_FILE.with_name(".hook_state.lock")):
+            state = load_hook_state()
+            mutator(state)
+            atomic_write_json(HOOK_STATE_FILE, state, indent=None)
+            return state
+    except OSError:
+        return None
 
 
 def _load_polyglot_config() -> dict:

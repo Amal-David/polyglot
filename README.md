@@ -1,11 +1,17 @@
 # Polyglot
 
-**One useful phrase at a time, while you work.**
+**Learn a language in the pauses between agent turns.**
 
-Polyglot is a standalone language-learning skill and terminal companion with
-70 language pairs and 18,235 bundled entries. Ask for a phrase on demand, open
-the interactive cabinet, or opt into an occasional phrase after an AI agent
-finishes a turn.
+Polyglot puts one useful word or phrase inside your Codex or Claude Code
+session every few completed turns. Instead of staring at terminal churn while
+an agent works, you collect small language-learning moments that add up—without
+an extra tab, streak pressure, or sending your conversation anywhere.
+
+The 74 language directions, 19,281 bundled entries, interactive terminal
+cabinet, typed recall, and local spaced repetition support that ambient moment.
+They are available when you want deliberate study, but they are secondary.
+
+[Visit the Polyglot landing page](https://pagecast-6cv.pages.dev/p/gentle-bumbling-panther-7373321451de0e735781830f87c14813/).
 
 ![Polyglot ambient phrase](assets/screenshots/polyglot_ambient_hook.png)
 
@@ -20,27 +26,34 @@ $ polyglot sample --pair en-es
 ```
 
 Polyglot remembers the active pair and recently shown entries, prioritizing
-unseen material before repeats.
+unseen material before repeats. For deliberate study, `review` uses typed
+retrieval, explicit grades, and local due scheduling; no agent transcript is
+treated as learner evidence.
 
 ## Demo video
 
-[Watch the 20-second Polyglot demo](site/public/polyglot-demo.mp4).
+[Watch the real five-turn CLI Stop-hook demo on the live landing page](https://pagecast-6cv.pages.dev/p/gentle-bumbling-panther-7373321451de0e735781830f87c14813/#ambient).
 
-The landing-page source lives in [`site/`](site/), with the full agent support
-matrix and host-native ambient behavior documented alongside the video.
+The recording invokes the same packaged hook path used by Codex and Claude
+Code. It intentionally shows only the CLI behavior: four quiet stops, then one
+compact starter phrase on the fifth.
+
+The landing-page source lives in [`site/`](site/), including a dependency-free
+Pagecast-safe handoff in `site/pagecast/`. It documents the verified adapter
+boundary rather than making host-native guarantees.
 
 ## Install
 
-### Codex desktop and Codex CLI
+### Codex Desktop and CLI
 
 ```bash
 codex plugin marketplace add Amal-David/polyglot
 codex plugin add polyglot@polyglot
 ```
 
-Restart the ChatGPT desktop app, open **Plugins**, select the **Polyglot**
-marketplace, and install **Polyglot**. Its on-demand skill then appears in the
-desktop Skills surface.
+Polyglot is packaged as a Codex plugin with a skill and a fail-soft `Stop`
+hook. Codex shares plugin configuration across its app and CLI surfaces; the
+hook returns a compact `systemMessage` when the local cadence is due.
 
 ### Claude Code
 
@@ -49,8 +62,8 @@ claude plugin marketplace add Amal-David/polyglot
 claude plugin install polyglot@polyglot
 ```
 
-Use `/polyglot:polyglot` explicitly, or ask Claude for language practice and let
-the skill match naturally.
+The marketplace validates strictly with Claude Code 2.1.212 and declares the
+same optional `Stop` cadence used by the Codex integration.
 
 ### Pi
 
@@ -58,8 +71,9 @@ the skill match naturally.
 pi install git:github.com/Amal-David/polyglot
 ```
 
-Pi loads the canonical skill and the native extension. Use
-`/skill:polyglot` for on-demand practice or `/polyglot` for configuration.
+Pi 0.57 installs and lists the canonical skill and native extension from an
+isolated home. Live command handling and `agent_end` presentation are not
+claimed.
 
 ### Hermes Agent
 
@@ -67,8 +81,9 @@ Pi loads the canonical skill and the native extension. Use
 hermes plugins install Amal-David/polyglot --enable
 ```
 
-Hermes registers the skill as `polyglot:polyglot`, an optional output
-companion, and `/polyglot` configuration command.
+Hermes 0.16 installs and loads Polyglot from a clean working directory,
+registering `polyglot:polyglot`, the optional output hook, and the `/polyglot`
+configuration command. Live authenticated output presentation is not claimed.
 
 ### Python CLI
 
@@ -93,6 +108,14 @@ polyglot ambient status
 polyglot ambient disable
 ```
 
+For a pair with no learner state, the first due cadence can show one labelled
+starter exposure, such as `Polyglot starter · hello → hallo`. This records only
+that the starter was displayed; it creates no learner schedule or review
+history. Polyglot then waits for an explicit `polyglot review`. Once learner
+state exists, ambient mode is due-only and never grades or reschedules a card.
+`polyglot ambient status` reports `starter`, `waiting`, or `due-ready` with the
+next action.
+
 Inside Pi or Hermes:
 
 ```text
@@ -104,26 +127,29 @@ Inside Pi or Hermes:
 
 The Codex and Claude skills can configure the same state using the bundled
 standard-library script, so a separate Python package install is not required
-for their plugin installs.
+for their plugin installs. Their manifests explicitly point at
+`scripts/ambient.py`; it resolves the installed plugin root and never relies
+on a globally installed `polyglot` command. The older
+`polyglot.skill.hook` import remains only as a deprecated compatibility path.
 
-Ambient presentation follows each host's supported extension surface:
+### Host support
 
-| Host | On demand | Ambient presentation |
-|---|---|---|
-| Codex desktop / CLI | Open Agent Skill | `Stop` event banner in the UI or event stream |
-| Claude Code | Plugin skill | `Stop` `systemMessage` banner |
-| Pi | Skill and `/polyglot` command | Native UI notification after `agent_end` |
-| Hermes | Namespaced plugin skill and `/polyglot` command | Phrase appended by `transform_llm_output` |
+| Host | Packaged integration |
+|---|---|
+| Codex Desktop + CLI | plugin skill and fail-soft `Stop` hook |
+| Claude Code 2.1.212 | strictly validated optional `Stop` adapter |
+| Pi 0.57 | canonical skill and native `agent_end` extension |
+| Hermes 0.16 | namespaced skill, hook, and configuration command |
 
-Codex and Claude banners are lifecycle events, not assistant-authored response
-text. Hermes can safely append to final response text through its native output
-transform. Every adapter catches its own failures so Polyglot cannot break an
-agent turn.
+Every adapter catches its own failures so Polyglot cannot break an agent turn.
+Host child processes receive only an explicit runtime, locale, and
+temporary-home allowlist; credentials, prompts, transcripts, paths, source
+code, tool arguments, and learner history are never ambient payload data.
 
 ## CLI
 
 ```bash
-polyglot                         # interactive 70-pair cabinet
+polyglot                         # interactive 74-pair cabinet
 polyglot pairs                   # list pair ids
 polyglot pairs --json
 polyglot pair en-ja              # set active pair
@@ -133,12 +159,38 @@ polyglot sample --pair en-ko --json
 polyglot ambient enable --pair en-fr --cadence 10
 ```
 
-The pair catalog contains:
+The direction catalog contains:
 
 - 52 English-to-language directions.
-- 18 language-to-English directions.
+- 22 language-to-English directions, including Polish → English (264),
+  Ukrainian → English (265), Swedish → English (261), and Greek → English
+  (256), mechanically derived from existing shipped records.
 - Script, vocabulary, phrase, and sentence categories.
 - Pronunciation hints and contextual notes where available.
+
+## V2 learning paths and catalog provenance
+
+German was already present in both directions; v2 deepens `en-de` and `de-en`
+with a conservative first-class learning path rather than marketing it as a
+new language. Each German card has a stable record ID, locale/script and
+register facts, a staged beginner route, typed-recall routing, and—where a safe
+deterministic rule exists—an exact-text contextual cloze. The Latin-script
+German route starts with useful social language, then foundations, core
+vocabulary, practical phrases, sentences, and finally redundant alphabet
+material; catalog order is preserved inside each stage. Due cards always come
+first and sessions never duplicate a card. Article/gender facts are limited to
+exact known lemmas. Automated grammar, register, and cloze annotations are
+explicitly **not native-speaker reviewed**.
+
+The four new reverse directions preserve their original Latin, Cyrillic, or
+Greek source text. Their legacy reading hints are retained only as legacy
+rendering hints, never presented as transliteration or reverse-direction
+pronunciation. No translation was generated for this expansion.
+
+The [2025 Duolingo Language Report](https://blog.duolingo.com/2025-duolingo-language-report/)
+reports English as its most-studied language and German fifth globally. That
+is demand context, not an official "top 20" claim: the choices above close
+direction gaps while retaining the existing demand-core catalog.
 
 ## Educational content, not authoritative translation
 

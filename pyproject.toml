@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ambient-polyglot"
-version = "1.0.0"
-description = "Learn one useful phrase at a time across 70 language pairs."
+version = "1.1.0"
+description = "Learn one useful phrase at a time across 74 language pairs."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -39,7 +39,7 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/Amal-David/polyglot"
+Homepage = "https://pagecast-6cv.pages.dev/p/gentle-bumbling-panther-7373321451de0e735781830f87c14813/"
 Repository = "https://github.com/Amal-David/polyglot"
 Issues = "https://github.com/Amal-David/polyglot/issues"
 
@@ -51,3 +51,9 @@ include = ["polyglot*"]
 
 [tool.setuptools]
 include-package-data = true
+
+[tool.setuptools.data-files]
+"share/ambient-polyglot/protocol" = [
+  "protocol/ambient-companion-v1.schema.json",
+  "protocol/ambient-companion-v1.example.json",
+]

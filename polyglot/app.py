@@ -1,4 +1,4 @@
-"""Polyglot cabinet — curses launcher for browsing 70 language pairs."""
+"""Polyglot cabinet — curses launcher for browsing 74 language pairs."""
 
 from __future__ import annotations
 

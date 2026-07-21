@@ -1,9 +1,9 @@
 # Polyglot landing page
 
-The public Polyglot landing page is a Vinext site built for OpenAI Sites.
-It includes the final Hyperframes demo, responsive product copy, installation
-commands for Codex, Claude, Hermes, and Pi, and the host-native ambient support
-contract.
+The public Polyglot landing page is a Vinext site with the current typed-recall
+story, catalog provenance, and evidence-scoped host support. The Pagecast-safe
+static handoff lives in `pagecast/`; it is dependency-free and references its
+own local assets.
 
 ## Local development
 
@@ -19,4 +19,9 @@ npm test
 ```
 
 The test performs a production build and verifies the server-rendered HTML.
-The social preview, poster, fonts, and MP4 live under `public/`.
+The app preview assets live under `public/`. The canonical public Pagecast
+bundle is self-contained under `pagecast/`, including local fonts, licenses,
+favicon, the final video, the poster, and a hash-and-size manifest.
+
+Published Pagecast URL:
+<https://pagecast-6cv.pages.dev/p/gentle-bumbling-panther-7373321451de0e735781830f87c14813/>

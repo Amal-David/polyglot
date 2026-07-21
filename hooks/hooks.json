@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/ambient.py\" --hook --host auto",
+            "command": "root=\"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:-${CODEX_PLUGIN_ROOT:-}}}\"; host=claude; if [ -n \"${PLUGIN_ROOT:-}\" ] || [ -n \"${CODEX_PLUGIN_ROOT:-}\" ]; then host=codex; fi; if [ -n \"$root\" ] && [ -f \"$root/scripts/ambient.py\" ]; then output=\"$(env -i PATH=\"${PATH:-}\" HOME=\"${HOME:-}\" USERPROFILE=\"${USERPROFILE:-}\" APPDATA=\"${APPDATA:-}\" TMPDIR=\"${TMPDIR:-}\" TMP=\"${TMP:-}\" TEMP=\"${TEMP:-}\" LANG=\"${LANG:-}\" LC_ALL=\"${LC_ALL:-}\" LC_CTYPE=\"${LC_CTYPE:-}\" XDG_DATA_HOME=\"${XDG_DATA_HOME:-}\" PYTHONUTF8=1 python3 \"$root/scripts/ambient.py\" --hook --host \"$host\" 2>/dev/null)\" && printf '%s\\n' \"$output\" || printf '{}\\n'; else printf '{}\\n'; fi",
             "timeout": 5
           }
         ]
