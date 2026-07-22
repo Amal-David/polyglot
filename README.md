@@ -2,6 +2,8 @@
 
 **Learn a language in the pauses between agent turns.**
 
+[![Polyglot teaching German inside a Claude Code terminal session](assets/demo/polyglot-claude-demo.gif)](https://polyglot-5os.pages.dev/#ambient)
+
 Polyglot puts one useful word or phrase inside your Codex or Claude Code
 session every few completed turns. Instead of staring at terminal churn while
 an agent works, you collect small language-learning moments that add up—without
@@ -11,7 +13,7 @@ The 74 language directions, 19,281 bundled entries, interactive terminal
 cabinet, typed recall, and local spaced repetition support that ambient moment.
 They are available when you want deliberate study, but they are secondary.
 
-[Visit the Polyglot landing page](https://pagecast-6cv.pages.dev/p/gentle-bumbling-panther-7373321451de0e735781830f87c14813/).
+[Visit the Polyglot landing page](https://polyglot-5os.pages.dev/).
 
 ![Polyglot ambient phrase](assets/screenshots/polyglot_ambient_hook.png)
 
@@ -32,11 +34,11 @@ treated as learner evidence.
 
 ## Demo video
 
-[Watch the real five-turn CLI Stop-hook demo on the live landing page](https://pagecast-6cv.pages.dev/p/gentle-bumbling-panther-7373321451de0e735781830f87c14813/#ambient).
+[Watch the full-resolution terminal demo](https://polyglot-5os.pages.dev/#ambient).
 
-The recording invokes the same packaged hook path used by Codex and Claude
-Code. It intentionally shows only the CLI behavior: four quiet stops, then one
-compact starter phrase on the fifth.
+The recording shows a Claude Code edit-and-test session. Polyglot adds one
+German phrase after the completed turn. It never exposes adapter commands or
+raw hook payloads.
 
 The landing-page source lives in [`site/`](site/), including a dependency-free
 Pagecast-safe handoff in `site/pagecast/`. It documents the verified adapter

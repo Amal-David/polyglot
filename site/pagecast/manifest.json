@@ -11,8 +11,8 @@
     { "path": "assets/fonts/licenses/dm-mono-OFL.txt", "status": "present", "bytes": 4937, "sha256": "d2766c396a8534cba53340f8af2037749b6a0a1dd3587348c917a70e779d2e32" },
     { "path": "assets/fonts/licenses/hanken-grotesk-OFL.txt", "status": "present", "bytes": 4530, "sha256": "f45f60ca871850c58d8dc9c973bd6fcad40c137e9d037172b961e8ca68c87ef7" },
     { "path": "assets/fonts/licenses/newsreader-OFL.txt", "status": "present", "bytes": 4520, "sha256": "26028ec4e13b650065fa525a09532176f8a668b76ff849ea01c564a7480f91e7" },
-    { "path": "assets/polyglot-demo.mp4", "status": "present", "bytes": 40865, "sha256": "e2f56f76aa69641a5a2b72e36d8e8a08eff3a8f1a52480729d324cd245447189" },
-    { "path": "assets/polyglot-poster.png", "status": "present", "bytes": 26152, "sha256": "01d92890a2746db03a262d807db60be2ff2b024d1d4070b0ed63c5de4f987d09" }
+    { "path": "assets/polyglot-demo.mp4", "status": "present", "bytes": 158385, "sha256": "4e5d88dcf3c6a95a83e2df14db88e42c7f01e14b6454b151aaca5973ef55fc71" },
+    { "path": "assets/polyglot-poster.png", "status": "present", "bytes": 259533, "sha256": "3098c45b09f0fce65d1bb0d51e54ef518696ec6bbadc169a27f230de07125d10" }
   ],
   "verified_facts": {
     "directions": 74,

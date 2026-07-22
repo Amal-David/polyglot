@@ -26,7 +26,7 @@ class PagecastStaticBundleTests(unittest.TestCase):
         for marker in (
             'href="#main"',
             'id="main" tabindex="-1"',
-            "Read the demo transcript and summary",
+            "Accessible transcript",
             "polyglot review --pair en-de --direction reverse",
             "Prompt: sehen",
             "Answer: to see",
@@ -98,10 +98,7 @@ class PagecastStaticBundleTests(unittest.TestCase):
             self.assertNotIn(marker.lower(), self.html.lower())
 
     def test_pagecast_has_final_canonical_and_social_metadata(self) -> None:
-        page_url = (
-            "https://pagecast-6cv.pages.dev/p/"
-            "gentle-bumbling-panther-7373321451de0e735781830f87c14813/"
-        )
+        page_url = "https://polyglot-5os.pages.dev/"
         self.assertIn(f'<link rel="canonical" href="{page_url}">', self.html)
         self.assertIn(f'<meta property="og:url" content="{page_url}">', self.html)
         self.assertIn('<meta property="og:type" content="website">', self.html)

@@ -24,4 +24,4 @@ bundle is self-contained under `pagecast/`, including local fonts, licenses,
 favicon, the final video, the poster, and a hash-and-size manifest.
 
 Published Pagecast URL:
-<https://pagecast-6cv.pages.dev/p/gentle-bumbling-panther-7373321451de0e735781830f87c14813/>
+<https://polyglot-5os.pages.dev/>

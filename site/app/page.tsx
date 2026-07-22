@@ -38,7 +38,7 @@ export default function Home() {
             </p>
             <div className="hero-actions">
               <a className="button button-primary" href={githubUrl}>Add Polyglot to your agent ↗</a>
-              <a className="button button-secondary" href="#ambient">Watch five real turns</a>
+              <a className="button button-secondary" href="#ambient">Watch the terminal demo</a>
             </div>
           </div>
           <aside className="phrase-card" aria-label="Ambient learning example">
@@ -58,18 +58,18 @@ export default function Home() {
 
         <section className="demo-section" id="ambient">
           <div className="section-heading">
-            <p className="eyebrow">Real CLI capture</p>
-            <h2>Five completed turns. One phrase worth keeping.</h2>
-            <p>The shipped Stop hook stays quiet for four turns, then returns one small language-learning moment through the same path packaged for Codex and Claude Code.</p>
+            <p className="eyebrow">Claude Code terminal</p>
+            <h2>The work finishes. Polyglot teaches one useful phrase.</h2>
+            <p>No hook commands or payloads—just the experience inside a coding session.</p>
           </div>
           <div className="video-frame">
-            <div className="video-bar"><span>Polyglot / Codex + Claude Code compatible Stop hook</span><span>Real terminal capture</span></div>
-            <video controls playsInline preload="metadata" poster="/polyglot-poster.png">
+            <div className="video-bar"><span>Polyglot · Claude Code</span><span>English → German at the turn boundary</span></div>
+            <video controls autoPlay muted loop playsInline preload="metadata" poster="/polyglot-poster.png">
               <source src="/polyglot-demo.mp4" type="video/mp4" />
               Your browser does not support the demo video.
             </video>
           </div>
-          <details className="transcript"><summary>Read the demo transcript and summary</summary><p>A real isolated CLI capture invokes five completed-turn Stop events. The first four return no visible message. On the fifth, Polyglot emits <code>Polyglot starter · hello → hallo</code>. The video intentionally shows only the CLI behavior, while the packaged hook is shared by Codex and Claude Code.</p></details>
+          <details className="transcript"><summary>Accessible transcript</summary><p>Claude Code adds a regression test for the German review scheduler and runs 24 focused tests successfully. At the turn boundary, Polyglot displays <code>hello → hallo</code> with the pronunciation <code>HAH-loh</code>.</p></details>
         </section>
 
         <section className="demo-section" id="review">
