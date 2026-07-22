@@ -48,7 +48,9 @@ test("server-renders the complete Polyglot landing page", async () => {
   assert.match(html, /119/);
   assert.match(html, /79/);
   assert.match(html, /PL→EN 264/);
-  assert.match(html, /Read the demo transcript and summary/);
+  assert.match(html, /Accessible transcript/);
+  assert.match(html, /autoplay=""/i);
+  assert.doesNotMatch(html, /Real CLI capture|real isolated CLI capture/);
   assert.match(html, /Codex/);
   assert.match(html, /Claude/);
   assert.match(html, /Hermes/);
