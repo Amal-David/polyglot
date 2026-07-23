@@ -1,9 +1,15 @@
 # Recording the launch video
 
 `polyglot-launch.tape` drives [VHS](https://github.com/charmbracelet/vhs) to
-produce `assets/demo/polyglot-launch.mp4` and `.gif`. It captures three
+produce `assets/demo/vhs/polyglot-launch.mp4` and `.gif`. It captures three
 beats: a scripted agent session ending in the real Stop hook output, a tour
 of the interactive 74-pair terminal cabinet, and a closing CTA line.
+
+This output lives under `assets/demo/vhs/`, deliberately separate from the
+existing hand-recorded hero at `assets/demo/polyglot-claude-demo.gif`
+(embedded at the top of `README.md`). Nothing in this port touches that
+asset or the README — see the PR description for how to swap or combine
+them if you want this recording featured instead.
 
 ## What's genuine vs. staged
 
@@ -32,6 +38,6 @@ Stop hook has something to say on the very first turn.
 `POLYGLOT_HOOK_SEED` (read by `polyglot.ambient.main`) is set in the tape so
 reruns pick the same phrase deterministically.
 
-Re-recording will overwrite `assets/demo/polyglot-launch.mp4` and `.gif` and
-the beat screenshots in `demo/frames/`. Requires the `vhs` CLI and Python 3
-on `PATH`.
+Re-recording will overwrite `assets/demo/vhs/polyglot-launch.mp4` and `.gif`
+and the beat screenshots in `demo/frames/`. Requires the `vhs` CLI and
+Python 3 on `PATH`.

@@ -5,8 +5,11 @@
 
 Require python3
 
-Output assets/demo/polyglot-launch.mp4
-Output assets/demo/polyglot-launch.gif
+# Separate path (assets/demo/vhs/) so this never collides with the existing
+# hand-recorded hero at assets/demo/polyglot-claude-demo.gif — see the PR
+# description for how to swap or combine them in the README.
+Output assets/demo/vhs/polyglot-launch.mp4
+Output assets/demo/vhs/polyglot-launch.gif
 
 Set Theme "Catppuccin Mocha"
 Set FontSize 20
