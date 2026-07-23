@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import patch
 
@@ -16,6 +19,8 @@ from polyglot.skill.phrase_picker import (
     select_phrase_index,
     total_phrase_count,
 )
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _with_isolated_state(test_method):
@@ -237,6 +242,54 @@ class HookScriptTests(unittest.TestCase):
             "en-de",
             polyglot_config.load_hook_state().get("ambient_starter_pairs", {}),
         )
+
+
+class HookImportCostTests(unittest.TestCase):
+    """The Stop hook (scripts/ambient.py) runs on every completed agent turn;
+    importing polyglot.ambient must not eagerly load the full pair registry."""
+
+    def test_importing_ambient_does_not_load_the_full_registry(self) -> None:
+        code = (
+            "import sys; import polyglot.ambient; "
+            "assert 'polyglot.data.content_loader' not in sys.modules"
+        )
+        subprocess.run([sys.executable, "-c", code], check=True, cwd=PROJECT_ROOT)
+
+
+class HookSeedDeterminismTests(unittest.TestCase):
+    """POLYGLOT_HOOK_SEED lets scripted demo recordings get reproducible picks."""
+
+    @_with_isolated_state
+    def test_same_seed_produces_the_same_phrase_pick(self) -> None:
+        import polyglot.ambient as ambient
+
+        polyglot_storage.set_active_pair_id("en-es")
+
+        with patch.dict("os.environ", {"POLYGLOT_HOOK_SEED": "2"}), patch("builtins.print"):
+            ambient.main(["--sample", "--pair", "en-es", "--json"])
+            first_state = dict(polyglot_config.load_hook_state())
+
+        polyglot_config.save_hook_state({})
+        with patch.dict("os.environ", {"POLYGLOT_HOOK_SEED": "2"}), patch("builtins.print"):
+            ambient.main(["--sample", "--pair", "en-es", "--json"])
+            second_state = dict(polyglot_config.load_hook_state())
+
+        self.assertEqual(first_state["last_phrase_idx"], second_state["last_phrase_idx"])
+
+
+class HookStateConcurrencyTests(unittest.TestCase):
+    """Verifies the existing locked_file-backed update_hook_state under load."""
+
+    @_with_isolated_state
+    def test_concurrent_phrase_picks_do_not_lose_updates(self) -> None:
+        polyglot_storage.set_active_pair_id("en-es")
+
+        with ThreadPoolExecutor(max_workers=12) as pool:
+            list(pool.map(lambda _: pick_phrase(), range(30)))
+
+        state = polyglot_config.load_hook_state()
+        self.assertEqual(state["total_phrases_shown"], 30)
+        self.assertEqual(sum(state["shown_counts"].values()), 30)
 
 
 if __name__ == "__main__":

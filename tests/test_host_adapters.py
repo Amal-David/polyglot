@@ -22,7 +22,7 @@ class HostAdapterManifestTests(unittest.TestCase):
         self.assertEqual(codex["name"], "polyglot")
         self.assertEqual(claude["name"], "polyglot")
         for manifest in (codex, claude):
-            self.assertEqual(manifest["version"], "1.1.0")
+            self.assertEqual(manifest["version"], "1.2.0")
             self.assertEqual(manifest["skills"], "./skills/")
             self.assertEqual(manifest["hooks"], "./hooks/hooks.json")
             self.assertTrue((ROOT / manifest["skills"]).is_dir())
@@ -53,7 +53,7 @@ class HostAdapterManifestTests(unittest.TestCase):
     def test_pi_package_has_native_extension_and_no_runtime_dependencies(self) -> None:
         package = json.loads((ROOT / "package.json").read_text())
         self.assertEqual(package["name"], "ambient-polyglot")
-        self.assertEqual(package["version"], "1.1.0")
+        self.assertEqual(package["version"], "1.2.0")
         self.assertIn("pi-package", package["keywords"])
         self.assertEqual(package["pi"]["extensions"], ["./extensions/polyglot.ts"])
         self.assertNotIn("dependencies", package)

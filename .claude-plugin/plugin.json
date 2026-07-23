@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "polyglot",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Practice one useful phrase at a time across 74 directions.",
   "author": {
     "name": "Amal David"

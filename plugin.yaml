@@ -1,5 +1,5 @@
 name: polyglot
-version: "1.1.0"
+version: "1.2.0"
 description: Practice one useful phrase at a time across 74 directions.
 provides_hooks:
   - transform_llm_output

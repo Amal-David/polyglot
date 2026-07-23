@@ -2,16 +2,20 @@
 
 from __future__ import annotations
 
+import subprocess
+import sys
 import unicodedata
 import unittest
+from pathlib import Path
 
 from polyglot.data.content_loader import ALL_PAIRS, get_pair, list_pairs
 from polyglot.data.content_v2 import STAGING_MANIFEST, STAGING_VALIDATION_REPORT, validate_v2_content
-from polyglot.data.pairs import CATEGORIES, LanguagePair, PhraseEntry
+from polyglot.data.pairs import CATEGORIES, LanguagePair, PhraseEntry, load_pair
 from polyglot.review import _card, compact_ambient_line
 from polyglot.safety import AMBIENT_MAX_CHARACTERS, AMBIENT_MAX_TOKENS, approximate_token_count
 from polyglot.safety import contains_control_or_sensitive_data
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_PAIR_COUNT = 74
 EXPECTED_ENTRY_COUNT = 19_281
 MIN_PHRASES_PER_PAIR = 200
@@ -55,6 +59,34 @@ class PolyglotDataIntegrity(unittest.TestCase):
         for p in ALL_PAIRS:
             self.assertIs(p, get_pair(p.id))
         self.assertIsNone(get_pair("does-not-exist"))
+
+    def test_lazy_load_pair_matches_registry(self) -> None:
+        # Includes the German (annotate_german_pair) and four mechanically
+        # reversed directions (build_reverse_pairs), not just bare-module pairs.
+        for p in ALL_PAIRS:
+            self.assertIs(p, load_pair(p.id))
+        self.assertIsNone(load_pair("does-not-exist"))
+        self.assertIsNone(load_pair("EN-DE"))
+        self.assertIsNone(load_pair("en.de"))
+        self.assertIsNone(load_pair(""))
+
+    def test_hook_path_imports_only_the_active_pair(self) -> None:
+        code = (
+            "import sys; from polyglot.data.pairs import load_pair; "
+            "pair = load_pair('en-es'); assert pair and pair.id == 'en-es'; "
+            "assert 'polyglot.data.content_loader' not in sys.modules; "
+            "loaded = sorted(m for m in sys.modules if m.startswith('polyglot.data.pair_')); "
+            "assert loaded == ['polyglot.data.pair_en_es'], loaded"
+        )
+        subprocess.run([sys.executable, "-c", code], check=True, cwd=PROJECT_ROOT)
+
+    def test_hook_path_falls_back_to_registry_for_derived_pairs(self) -> None:
+        code = (
+            "import sys; from polyglot.data.pairs import load_pair; "
+            "pair = load_pair('pl-en'); assert pair and pair.id == 'pl-en'; "
+            "assert 'polyglot.data.content_loader' in sys.modules"
+        )
+        subprocess.run([sys.executable, "-c", code], check=True, cwd=PROJECT_ROOT)
 
     def test_each_pair_meets_minimum_phrase_budget(self) -> None:
         for pair in ALL_PAIRS:
