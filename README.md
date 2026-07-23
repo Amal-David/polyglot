@@ -38,6 +38,17 @@ treated as learner evidence.
 
 ## Demo video
 
+![Polyglot's Stop hook firing after a scripted agent session, then a tour of the interactive terminal cabinet](assets/demo/polyglot-launch.gif)
+
+*A staged session against a disposable webhook-signature-check scenario —
+the tool calls are scripted for pacing, but the phrase card is genuine: it
+comes from piping the real `Stop` hook (`scripts/ambient.py`) at the end of
+the turn, the same command `hooks/hooks.json` registers, with
+`POLYGLOT_HOOK_SEED` fixed for a reproducible pick. The second half tours
+the paginated 74-pair grid and a pair detail screen. Recorded with
+[VHS](https://github.com/charmbracelet/vhs); see
+[`demo/SCRIPTS.md`](demo/SCRIPTS.md) for a pixel-identical rerun.*
+
 [Watch the full-resolution terminal demo](https://polyglot-5os.pages.dev/#ambient).
 
 The recording comes from the disposable `fix-friday-deploys-before-standup`

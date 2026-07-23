@@ -1,14 +1,18 @@
-"""Local persistence for polyglot config, state, and the active language pair."""
+"""Local persistence for polyglot config and the active language pair.
+
+Ambient-hook progress state (shown counts, cadence counters) lives in
+polyglot.skill.config's hook_state.json, not here.
+"""
 
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 
 from polyglot.platform import app_data_dir, atomic_write_json, locked_file, private_directory
 
 APP_DIR_NAME = "polyglot"
-STATE_FILE = "state.json"
 CONFIG_FILE = "config.json"
 LEARNER_DIR = "learner"
 
@@ -19,12 +23,6 @@ DEFAULT_CONFIG = {
     "phrase_cadence": 5,
     "codex_phrase_cadence": 5,
     "last_browsed_pair_id": None,
-    "pair_history": [],
-}
-
-DEFAULT_STATE = {
-    "favorites": [],
-    "phrases_seen": 0,
     "pair_history": [],
 }
 
@@ -48,22 +46,14 @@ def _load_json(filename: str, defaults, base_dir: Path | None = None):
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except (FileNotFoundError, OSError, json.JSONDecodeError, TypeError, ValueError):
-        return _copy_defaults(defaults)
+        return copy.deepcopy(defaults)
     if isinstance(defaults, dict):
         if not isinstance(payload, dict):
-            return _copy_defaults(defaults)
-        merged = dict(defaults)
+            return copy.deepcopy(defaults)
+        merged = copy.deepcopy(defaults)
         merged.update(payload)
         return merged
     return payload
-
-
-def _copy_defaults(defaults):
-    if isinstance(defaults, dict):
-        return dict(defaults)
-    if isinstance(defaults, list):
-        return list(defaults)
-    return defaults
 
 
 def _save_json(filename: str, payload, base_dir: Path | None = None) -> None:
@@ -79,14 +69,6 @@ def update_config(mutator, base_dir: Path | None = None) -> dict:
         mutator(config)
         _save_json(CONFIG_FILE, config, base_dir)
         return config
-
-
-def load_state(base_dir: Path | None = None) -> dict:
-    return _load_json(STATE_FILE, DEFAULT_STATE, base_dir)
-
-
-def save_state(state: dict, base_dir: Path | None = None) -> None:
-    _save_json(STATE_FILE, state, base_dir)
 
 
 def load_config(base_dir: Path | None = None) -> dict:
@@ -115,9 +97,3 @@ def set_active_pair_id(pair_id: str | None, base_dir: Path | None = None) -> Non
             config["last_browsed_pair_id"] = pair_id
 
     update_config(apply, base_dir)
-
-
-def increment_phrases_seen(base_dir: Path | None = None) -> None:
-    state = load_state(base_dir)
-    state["phrases_seen"] = state.get("phrases_seen", 0) + 1
-    save_state(state, base_dir)

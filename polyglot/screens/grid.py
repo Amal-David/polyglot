@@ -22,6 +22,11 @@ NEXT_PAGE_KEYS = {curses.KEY_NPAGE, ord("n"), ord("N"), ord(">"), ord(".")}
 PREV_PAGE_KEYS = {curses.KEY_PPAGE, ord("p"), ord("P"), ord("<"), ord(",")}
 
 
+def _fit(text: str, width: int) -> str:
+    """Clip to width with an ellipsis so truncation reads as intentional."""
+    return text if len(text) <= width else text[: width - 1] + "…"
+
+
 def _draw_cell(
     stdscr,
     y: int,
@@ -46,8 +51,8 @@ def _draw_cell(
     status_attr = curses.color_pair(3) | curses.A_BOLD if has_color else curses.A_BOLD
 
     line1 = f"{flag}  {pair.source_lang} → {pair.target_lang}"
-    safe_addstr(stdscr, y + 1, x + 2, line1[: CELL_WIDTH - 4], label_attr)
-    safe_addstr(stdscr, y + 2, x + 2, pair.display_native[: CELL_WIDTH - 4], native_attr)
+    safe_addstr(stdscr, y + 1, x + 2, _fit(line1, CELL_WIDTH - 4), label_attr)
+    safe_addstr(stdscr, y + 2, x + 2, _fit(pair.display_native, CELL_WIDTH - 4), native_attr)
     badge = "● active" if active else ""
     if badge:
         safe_addstr(stdscr, y + 3, x + 2, badge, status_attr)

@@ -5,11 +5,12 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import random
 import sys
 import time
 from typing import Any
 
-from polyglot.data.content_loader import get_pair
+from polyglot.data.pairs import load_pair as get_pair
 from polyglot.skill.config import (
     get_active_pair_id,
     get_ambient_cadence,
@@ -239,6 +240,11 @@ def _parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     """Run the shared script protocol without ever failing an agent turn."""
+    # Opt-in deterministic picks for scripted demo recordings.
+    seed = os.environ.get("POLYGLOT_HOOK_SEED")
+    if seed:
+        random.seed(seed)
+
     args = _parser().parse_args(argv)
     try:
         host = detect_hook_host() if args.host == "auto" else args.host

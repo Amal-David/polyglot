@@ -1,6 +1,6 @@
 # Data notes and corrections
 
-Polyglot 1.1.0 contains 19,281 educational entries across 74 language
+Polyglot 1.2.0 contains 19,281 educational entries across 74 language
 directions. The collection lives in `polyglot/data/pair_*.py`; each entry stores
 a source phrase, target phrase, pronunciation hint, category, subcategory, and
 optional note.

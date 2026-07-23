@@ -76,7 +76,7 @@ def pick_phrase(pair_id: str | None = None) -> dict | None:
     total_phrases_shown, and active_pair_id in the shared hook state. When
     the active pair changes, picker history is reset so variety restarts.
     """
-    from polyglot.data.content_loader import get_pair
+    from polyglot.data.pairs import load_pair as get_pair
     from polyglot.skill.config import (
         get_active_pair_id,
         update_hook_state,
@@ -134,7 +134,7 @@ def pick_phrase(pair_id: str | None = None) -> dict | None:
 
 
 def total_phrase_count(pair_id: str | None = None) -> int:
-    from polyglot.data.content_loader import get_pair
+    from polyglot.data.pairs import load_pair as get_pair
     from polyglot.skill.config import get_active_pair_id
 
     if pair_id is None:
