@@ -4,6 +4,10 @@
 
 [![Polyglot teaching German inside a Claude Code terminal session](assets/demo/polyglot-claude-demo.gif)](https://polyglot-5os.pages.dev/#ambient)
 
+*An actual Claude Code 2.1.218 + Opus 4.8 session. The 11-second hero cut
+accelerates the work, then highlights and holds the real Polyglot Stop phrase
+for four seconds. The signed-in account is redacted.*
+
 Polyglot puts one useful word or phrase inside your Codex or Claude Code
 session every few completed turns. Instead of staring at terminal churn while
 an agent works, you collect small language-learning moments that add up—without
@@ -36,9 +40,12 @@ treated as learner evidence.
 
 [Watch the full-resolution terminal demo](https://polyglot-5os.pages.dev/#ambient).
 
-The recording shows a Claude Code edit-and-test session. Polyglot adds one
-German phrase after the completed turn. It never exposes adapter commands or
-raw hook payloads.
+The recording comes from the disposable `fix-friday-deploys-before-standup`
+Rust project. Claude fixes the deployment guard, adds the Friday regression
+test, and passes all three tests before the real Stop hook displays
+`Polyglot starter · hello → hallo`. Setup and tool work are compressed; the
+phrase itself receives a four-second highlighted zoom. No tool call, edit,
+test result, response, or phrase was synthesized.
 
 The landing-page source lives in [`site/`](site/), including a dependency-free
 Pagecast-safe handoff in `site/pagecast/`. It documents the verified adapter

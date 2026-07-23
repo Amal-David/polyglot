@@ -58,18 +58,18 @@ export default function Home() {
 
         <section className="demo-section" id="ambient">
           <div className="section-heading">
-            <p className="eyebrow">Claude Code terminal</p>
-            <h2>The work finishes. Polyglot teaches one useful phrase.</h2>
-            <p>No hook commands or payloads—just the experience inside a coding session.</p>
+            <p className="eyebrow">Actual Claude Code 2.1.218 session · Opus 4.8</p>
+            <h2>A real edit, real tests, and a real Polyglot Stop hook.</h2>
+            <p>An 11-second cut accelerates the work, then zooms and holds the phrase for four seconds.</p>
           </div>
           <div className="video-frame">
-            <div className="video-bar"><span>Polyglot · Claude Code</span><span>English → German at the turn boundary</span></div>
+            <div className="video-bar"><span>Polyglot · Claude Code</span><span>Actual phrase at the Stop boundary</span></div>
             <video controls autoPlay muted loop playsInline preload="metadata" poster="/polyglot-poster.png">
               <source src="/polyglot-demo.mp4" type="video/mp4" />
               Your browser does not support the demo video.
             </video>
           </div>
-          <details className="transcript"><summary>Accessible transcript</summary><p>Claude Code adds a regression test for the German review scheduler and runs 24 focused tests successfully. At the turn boundary, Polyglot displays <code>hello → hallo</code> with the pronunciation <code>HAH-loh</code>.</p></details>
+          <details className="transcript"><summary>Accessible transcript</summary><p>In the disposable <code>fix-friday-deploys-before-standup</code> Rust project, an authenticated Claude Code 2.1.218 session with Opus 4.8 finds a deployment-guard bug, changes <code>requires_rollback_plan</code>, adds a Friday regression test, and runs the full Cargo suite with all three tests passing. The actual Polyglot Stop hook then displays <code>Polyglot starter · hello → hallo</code>. The source capture is played at 1.25× with idle waits capped; the hero edit further compresses the work and gives the real phrase a four-second highlighted hold. No tool call, edit, test result, response, or phrase was synthesized.</p></details>
         </section>
 
         <section className="demo-section" id="review">

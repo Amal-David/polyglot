@@ -56,6 +56,11 @@ test("server-renders the complete Polyglot landing page", async () => {
   assert.match(html, /Hermes/);
   assert.match(html, />Pi</);
   assert.match(html, /polyglot-demo\.mp4/);
+  assert.match(html, /Actual Claude Code 2\.1\.218 session/);
+  assert.match(html, /Opus 4\.8/);
+  assert.match(html, /four-second highlighted hold/);
+  assert.match(html, /Polyglot starter · hello → hallo/);
+  assert.match(html, /all three tests passing/);
   assert.match(html, /github\.com\/Amal-David\/polyglot/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|host-native/);
 });
